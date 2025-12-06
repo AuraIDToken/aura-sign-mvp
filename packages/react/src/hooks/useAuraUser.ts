@@ -34,10 +34,9 @@ export function useAuraUser(): UseAuraUserReturn {
       setState('connecting');
 
       // Check for ethereum provider
-      // Use globalThis instead of window for SSR/Deno compatibility
-      // where window may not be defined. Type assertion used to avoid
-      // global type modifications (consider adding ethereum property to 
-      // global.d.ts interface declarations in future PR).
+      // Use globalThis instead of window for SSR/Deno compatibility where window may not be defined.
+      // Type assertion used to avoid global type modifications (consider adding ethereum property
+      // to global.d.ts interface declarations in future PR).
       const ethereum = (globalThis as any).ethereum;
       if (!ethereum) {
         throw new Error('Ethereum provider not available');
