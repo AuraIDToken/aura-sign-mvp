@@ -32,10 +32,10 @@ describe('AuraClient', () => {
   describe('getMessage', () => {
     it('should fetch sign-in message for an address', async () => {
       const mockResponse = { message: 'Sign this message' };
-      (fetch as any).mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse
-      });
+      } as Response);
 
       const result = await client.getMessage('0x123', 1);
 
@@ -51,10 +51,10 @@ describe('AuraClient', () => {
 
     it('should use chainId 1 as default', async () => {
       const mockResponse = { message: 'Sign this message' };
-      (fetch as any).mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse
-      });
+      } as Response);
 
       await client.getMessage('0x123');
 
@@ -67,10 +67,10 @@ describe('AuraClient', () => {
     });
 
     it('should throw error on failed request', async () => {
-      (fetch as any).mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 500
-      });
+      } as Response);
 
       await expect(client.getMessage('0x123')).rejects.toThrow('HTTP error! status: 500');
     });
@@ -86,10 +86,10 @@ describe('AuraClient', () => {
           isAuthenticated: true
         }
       };
-      (fetch as any).mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse
-      });
+      } as Response);
 
       const signInRequest = {
         message: 'Sign this message',
@@ -114,10 +114,10 @@ describe('AuraClient', () => {
         success: false,
         error: 'Invalid signature'
       };
-      (fetch as any).mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse
-      });
+      } as Response);
 
       const signInRequest = {
         message: 'Sign this message',
@@ -138,10 +138,10 @@ describe('AuraClient', () => {
         chainId: 1,
         isAuthenticated: true
       };
-      (fetch as any).mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockSession
-      });
+      } as Response);
 
       const result = await client.getSession();
 
@@ -154,10 +154,10 @@ describe('AuraClient', () => {
         chainId: 0,
         isAuthenticated: false
       };
-      (fetch as any).mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockSession
-      });
+      } as Response);
 
       const result = await client.getSession();
 
@@ -165,7 +165,7 @@ describe('AuraClient', () => {
     });
 
     it('should return null on request error', async () => {
-      (fetch as any).mockRejectedValueOnce(new Error('Network error'));
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
 
       const result = await client.getSession();
 
@@ -175,10 +175,10 @@ describe('AuraClient', () => {
 
   describe('signOut', () => {
     it('should call signout endpoint', async () => {
-      (fetch as any).mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({})
-      });
+      } as Response);
 
       await client.signOut();
 
@@ -199,8 +199,8 @@ describe('AuraClient', () => {
       });
 
       // Mock a slow response
-      (fetch as any).mockImplementationOnce(() =>
-        new Promise((resolve) => setTimeout(() => resolve({ ok: true }), 200))
+      vi.mocked(fetch).mockImplementationOnce(() =>
+        new Promise((resolve) => setTimeout(() => resolve({ ok: true } as Response), 200))
       );
 
       await expect(slowClient.getMessage('0x123')).rejects.toThrow();
