@@ -333,22 +333,22 @@ If WAL archiving is enabled:
 
 ```bash
 # Note: PostgreSQL service name and paths vary by distribution
-# Ubuntu/Debian: postgresql, /var/lib/postgresql/14/main
-# RHEL/CentOS: postgresql-14, /var/lib/pgsql/14/data
-# Adjust paths accordingly
+# This example uses PostgreSQL 16 (matching pgvector/pgvector:pg16 Docker image)
+# Ubuntu/Debian: postgresql, /var/lib/postgresql/16/main
+# RHEL/CentOS: postgresql-16, /var/lib/pgsql/16/data
+# Adjust paths and version numbers according to your installation
 
 # 1. Stop PostgreSQL (Ubuntu example)
 systemctl stop postgresql
-# RHEL: systemctl stop postgresql-14
+# RHEL: systemctl stop postgresql-16
 
 # 2. Replace data directory with base backup
-rm -rf /var/lib/postgresql/14/main/*
-tar -xzf base_backup.tar.gz -C /var/lib/postgresql/14/main/
+rm -rf /var/lib/postgresql/16/main/*
+tar -xzf base_backup.tar.gz -C /var/lib/postgresql/16/main/
 
-# 3. Create recovery.conf (PostgreSQL < 12) or recovery.signal (PostgreSQL 12+)
-# For PostgreSQL 12+:
-touch /var/lib/postgresql/14/main/recovery.signal
-cat >> /var/lib/postgresql/14/main/postgresql.conf <<EOF
+# 3. Create recovery.signal and configure restore (PostgreSQL 12+)
+touch /var/lib/postgresql/16/main/recovery.signal
+cat >> /var/lib/postgresql/16/main/postgresql.conf <<EOF
 restore_command = 'cp /var/lib/postgresql/wal_archive/%f %p'
 recovery_target_time = '2025-12-06 12:00:00'
 EOF
@@ -357,8 +357,8 @@ EOF
 systemctl start postgresql
 
 # 5. Monitor recovery
-tail -f /var/log/postgresql/postgresql-14-main.log
-# RHEL: tail -f /var/lib/pgsql/14/data/log/postgresql-*.log
+tail -f /var/log/postgresql/postgresql-16-main.log
+# RHEL: tail -f /var/lib/pgsql/16/data/log/postgresql-*.log
 ```
 
 ### Application Restore
