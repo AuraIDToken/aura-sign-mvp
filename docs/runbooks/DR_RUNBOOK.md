@@ -332,15 +332,23 @@ pg_restore -h $PGHOST -U $PGUSER -d aura_sign -t identity backup_file.dump
 If WAL archiving is enabled:
 
 ```bash
-# 1. Stop PostgreSQL
+# Note: PostgreSQL service name and paths vary by distribution
+# Ubuntu/Debian: postgresql, /var/lib/postgresql/14/main
+# RHEL/CentOS: postgresql-14, /var/lib/pgsql/14/data
+# Adjust paths accordingly
+
+# 1. Stop PostgreSQL (Ubuntu example)
 systemctl stop postgresql
+# RHEL: systemctl stop postgresql-14
 
 # 2. Replace data directory with base backup
 rm -rf /var/lib/postgresql/14/main/*
 tar -xzf base_backup.tar.gz -C /var/lib/postgresql/14/main/
 
-# 3. Create recovery.conf
-cat > /var/lib/postgresql/14/main/recovery.conf <<EOF
+# 3. Create recovery.conf (PostgreSQL < 12) or recovery.signal (PostgreSQL 12+)
+# For PostgreSQL 12+:
+touch /var/lib/postgresql/14/main/recovery.signal
+cat >> /var/lib/postgresql/14/main/postgresql.conf <<EOF
 restore_command = 'cp /var/lib/postgresql/wal_archive/%f %p'
 recovery_target_time = '2025-12-06 12:00:00'
 EOF
@@ -350,6 +358,7 @@ systemctl start postgresql
 
 # 5. Monitor recovery
 tail -f /var/log/postgresql/postgresql-14-main.log
+# RHEL: tail -f /var/lib/pgsql/14/data/log/postgresql-*.log
 ```
 
 ### Application Restore
@@ -452,9 +461,10 @@ EOF
 # 1. Activate DR site
 # Provision infrastructure in secondary region
 
-# 2. Restore database from cloud backup
-aws s3 cp s3://aura-backups/database/backups/latest.sql.gz /tmp/
-gunzip -c /tmp/latest.sql.gz | psql -h $DR_PGHOST -U $PGUSER -d aura_sign
+# 2. Restore database from cloud backup (get most recent)
+LATEST_BACKUP=$(aws s3 ls s3://aura-backups/database/backups/ | sort | tail -n 1 | awk '{print $4}')
+aws s3 cp "s3://aura-backups/database/backups/$LATEST_BACKUP" /tmp/
+gunzip -c "/tmp/$LATEST_BACKUP" | psql -h $DR_PGHOST -U $PGUSER -d aura_sign
 
 # 3. Deploy application
 git clone https://github.com/Kamil1230xd/aura-sign-mvp.git
