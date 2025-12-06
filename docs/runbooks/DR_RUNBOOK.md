@@ -462,9 +462,15 @@ EOF
 # Provision infrastructure in secondary region
 
 # 2. Restore database from cloud backup (get most recent)
-LATEST_BACKUP=$(aws s3 ls s3://aura-backups/database/backups/ | sort | tail -n 1 | awk '{print $4}')
-aws s3 cp "s3://aura-backups/database/backups/$LATEST_BACKUP" /tmp/
-gunzip -c "/tmp/$LATEST_BACKUP" | psql -h $DR_PGHOST -U $PGUSER -d aura_sign
+# Using aws s3api for reliable sorting by last modified date
+LATEST_BACKUP=$(aws s3api list-objects-v2 \
+  --bucket aura-backups \
+  --prefix database/backups/ \
+  --query 'sort_by(Contents, &LastModified)[-1].Key' \
+  --output text)
+aws s3 cp "s3://aura-backups/$LATEST_BACKUP" /tmp/
+BACKUP_FILE=$(basename "$LATEST_BACKUP")
+gunzip -c "/tmp/$BACKUP_FILE" | psql -h $DR_PGHOST -U $PGUSER -d aura_sign
 
 # 3. Deploy application
 git clone https://github.com/Kamil1230xd/aura-sign-mvp.git
