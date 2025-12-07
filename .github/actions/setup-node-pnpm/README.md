@@ -97,7 +97,7 @@ steps:
 | `pnpm-version` | pnpm version to setup | No | `'8'` |
 | `install-deps` | Install dependencies (pnpm install --frozen) | No | `'true'` |
 | `registry-url` | Optional registry url (for private registries) | No | `''` |
-| `cache` | Enable pnpm store caching (true\|false) | No | `'true'` |
+| `cache` | Enable pnpm store caching (true or false) | No | `'true'` |
 
 ## What This Action Does
 

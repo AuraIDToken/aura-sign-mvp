@@ -41,13 +41,6 @@ runs:
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE || true
 
-    - name: Install dependencies (optional)
-      if: ${{ inputs.install-deps == 'true' }}
-      shell: bash
-      run: |
-        pnpm fetch --prod || true
-        pnpm install --frozen --reporter=append-only
-
     - name: Setup pnpm store cache (actions/cache)
       if: ${{ inputs.cache == 'true' }}
       uses: actions/cache@v4
@@ -58,6 +51,13 @@ runs:
         key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-
+
+    - name: Install dependencies (optional)
+      if: ${{ inputs.install-deps == 'true' }}
+      shell: bash
+      run: |
+        pnpm fetch --prod || true
+        pnpm install --frozen --reporter=append-only
 
     - name: Output environment
       shell: bash

@@ -81,7 +81,7 @@ jobs:
           cache: 'false'
       
       - name: Fresh install every time
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen
 
   # Example 6: Cross-platform usage
   example-cross-platform:
