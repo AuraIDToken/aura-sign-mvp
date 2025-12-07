@@ -216,38 +216,48 @@ docker-compose up -d
 
 ## Database Management
 
-### Migrations
+### Schema Management
 
-The project uses Prisma for database schema management:
+The project uses Prisma for database schema management. The database-client package includes:
+- `schema_extra.prisma` - Example schema extensions with pgvector support
+
+To work with Prisma and migrations:
 
 ```bash
-# Run pending migrations
-pnpm --filter @aura-sign/database-client migrate
-
-# Create new migration
-pnpm --filter @aura-sign/database-client migrate:create
-
-# Reset database (development only)
-pnpm --filter @aura-sign/database-client migrate:reset
+# Navigate to database-client package
+cd packages/database-client
 
 # Generate Prisma client after schema changes
-pnpm --filter @aura-sign/database-client generate
+npx prisma generate
+
+# Create a new migration (if you have a schema.prisma file)
+npx prisma migrate dev --name migration_name
+
+# Apply migrations to production
+npx prisma migrate deploy
+
+# Reset database (development only - WARNING: data loss)
+npx prisma migrate reset
+
+# Open Prisma Studio to view/edit data
+npx prisma studio
 ```
 
 ### Database Setup Requirements
 
 - PostgreSQL 14+ with `pgvector` extension enabled
 - Connection string format: `postgresql://user:pass@localhost:5432/dbname`
+- Enable pgvector extension: `CREATE EXTENSION IF NOT EXISTS vector;`
 - Ensure database exists before running migrations
 
-### Updating Dependencies
+### Working with Database Schema
 
 When updating database schema:
 
-1. Modify Prisma schema in `packages/database-client/prisma/schema.prisma`
-2. Create migration: `pnpm --filter @aura-sign/database-client migrate:create`
-3. Apply migration: `pnpm --filter @aura-sign/database-client migrate`
-4. Regenerate client: `pnpm --filter @aura-sign/database-client generate`
+1. Edit your `schema.prisma` file (or integrate models from `schema_extra.prisma`)
+2. Create migration: `cd packages/database-client && npx prisma migrate dev`
+3. Generate client: `npx prisma generate`
+4. Rebuild package: `pnpm --filter @aura-sign/database-client build`
 5. Update dependent packages if schema changes affect types
 
 ## Common Patterns
