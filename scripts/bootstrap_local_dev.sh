@@ -40,19 +40,19 @@ if [ -f docker-compose.yml ]; then
     sleep 1
   done
 else
-  echo "No docker-compose.yml present - skip bringing infra"
+  echo "No docker-compose.yml present - skip bringing up infra"
 fi
 
 echo "Installing dependencies..."
 pnpm install
 
 echo "Generating Prisma client..."
-pnpm --filter packages/database-client prisma generate
+pnpm --filter @aura-sign/database-client prisma generate
 
 echo "Running prisma migrate deploy..."
-pnpm --filter packages/database-client prisma migrate deploy || true
+pnpm --filter @aura-sign/database-client prisma migrate deploy || true
 
 echo "Seeding database..."
-pnpm --filter packages/database-client prisma db seed
+pnpm --filter @aura-sign/database-client prisma db seed
 
 echo "Bootstrap complete. Run 'pnpm dev' to start apps."
