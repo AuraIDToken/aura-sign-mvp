@@ -11,7 +11,7 @@ The `schema.prisma` file defines two main models:
 
 ## Prerequisites
 
-1. PostgreSQL 14+ with pgvector extension
+1. PostgreSQL 16 with pgvector extension
 2. Environment variable `DATABASE_URL` configured
 
 ## Setup

@@ -15,7 +15,7 @@ datasource db {
 // Identity model with AI embeddings for similarity search
 model identity {
   address      String                        @id
-  ai_embedding Unsupported("vector(1536)")?  // OpenAI ada-002 embedding dimension
+  ai_embedding Unsupported("vector(1536)")?  // OpenAI text-embedding-3-small dimension
   created_at   DateTime                      @default(now())
   updated_at   DateTime                      @updatedAt
 
