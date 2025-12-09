@@ -108,7 +108,7 @@ echo ""
 # Test if gitleaks is available
 if command -v gitleaks >/dev/null 2>&1; then
     echo "Running gitleaks test scan..."
-    if gitleaks detect --config="$REPO_ROOT/.gitleaks.toml" --no-git --verbose 2>&1 | head -20; then
+    if gitleaks detect --config="$REPO_ROOT/.gitleaks.toml" --verbose 2>&1 | head -20; then
         echo ""
         echo "✅ Gitleaks is working correctly"
     else
