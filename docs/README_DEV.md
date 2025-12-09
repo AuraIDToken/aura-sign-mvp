@@ -98,40 +98,32 @@ cp .env.example .env
 
 Edit `.env` and configure the required variables:
 
-```bash
-# Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/aura
+**DO NOT use example values from `.env.example` in production.** All placeholder values must be replaced with secure, randomly generated credentials.
 
-# SIWE Authentication
-NEXT_PUBLIC_APP_NAME=Aura-Sign-Demo
-SESSION_SECRET=generate_a_secure_random_string_here
-IRON_SESSION_PASSWORD=generate_a_long_random_password_at_least_32_chars
+See `.env.example` for the complete list of configuration options with detailed comments.
 
-# Storage (optional)
-MINIO_ENDPOINT=http://localhost:9000
-MINIO_ACCESS_KEY=minio
-MINIO_SECRET_KEY=minio123
-
-# Redis (optional)
-REDIS_URL=redis://localhost:6379
-
-# Embeddings API (optional)
-EMBEDDING_API=http://localhost:4001
-```
-
-**Security Note**: Never commit your `.env` file. The `.gitignore` is configured to exclude it.
+**Security Note**: Never commit your `.env` or `.env.local` files. The `.gitignore` is configured to exclude them.
 
 ### 4. Generate Secure Secrets
 
-For `SESSION_SECRET` and `IRON_SESSION_PASSWORD`, generate secure random strings:
+All secrets should be generated using cryptographically secure random generators:
 
 ```bash
-# Generate SESSION_SECRET (32 characters)
+# Generate strong random secrets (recommended method)
 openssl rand -base64 32
 
-# Generate IRON_SESSION_PASSWORD (32+ characters)
-openssl rand -base64 48
+# Example: Generate all required secrets at once
+echo "SESSION_SECRET=$(openssl rand -base64 32)"
+echo "IRON_SESSION_PASSWORD=$(openssl rand -base64 32)"
+echo "POSTGRES_PASSWORD=$(openssl rand -base64 32)"
+echo "MINIO_ROOT_PASSWORD=$(openssl rand -base64 32)"
 ```
+
+**Minimum secret requirements:**
+- `SESSION_SECRET`: 32+ characters (base64 encoded)
+- `IRON_SESSION_PASSWORD`: 32+ characters (base64 encoded)
+- Database passwords: 32+ characters for production
+- MinIO passwords: 8+ characters (32+ recommended for production)
 
 ---
 
@@ -357,18 +349,23 @@ pnpm --filter demo-site start
 
 If your application uses PostgreSQL, MinIO, or Redis, you can run them via Docker Compose.
 
-Create a `docker-compose.yml` in the root:
+A `docker-compose.yml` exists in the root. It uses environment variables for credentials:
 
 ```yaml
 version: '3.8'
+
+# For local development, set these environment variables in .env or .env.local
+# Required variables:
+#   POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+#   MINIO_ROOT_USER, MINIO_ROOT_PASSWORD
 
 services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: aura_user
-      POSTGRES_PASSWORD: aura_pass
-      POSTGRES_DB: aura
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: ${POSTGRES_DB:-aura}
     ports:
       - "5432:5432"
     volumes:
@@ -385,8 +382,8 @@ services:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set}
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -573,16 +570,18 @@ python3 scripts/apply_license_headers.py
 Run the backup script:
 
 ```bash
-# Set environment variables
+# Set environment variables (use your actual credentials from .env.local)
 export PGHOST=localhost
 export PGPORT=5432
-export PGUSER=aura_user
-export PGPASSWORD=aura_pass
+export PGUSER=${POSTGRES_USER}        # From your .env.local
+export PGPASSWORD=${POSTGRES_PASSWORD} # From your .env.local
 export PGDATABASE=aura
 
 # Run backup
 ./scripts/db_backup.sh
 ```
+
+**Security Note:** Never hardcode credentials in scripts. Always source them from environment variables or secure secret management systems.
 
 For cloud backup (S3/GCS), see `docs/ops/quickstart_deploy.md`.
 
