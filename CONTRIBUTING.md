@@ -23,7 +23,17 @@ Thank you for your interest in contributing to Aura-Sign MVP! This document prov
    pnpm install
    ```
 
-3. Run tests and type checks:
+3. **Set up pre-commit hooks (RECOMMENDED):**
+   ```bash
+   ./scripts/setup_pre_commit_hooks.sh
+   ```
+   
+   This installs a pre-commit hook that scans for secrets before each commit. Requires [gitleaks](https://github.com/gitleaks/gitleaks) to be installed:
+   - macOS: `brew install gitleaks`
+   - Linux: See [gitleaks installation](https://github.com/gitleaks/gitleaks#installing)
+   - Or use Docker: `docker pull zricethezav/gitleaks:latest`
+
+4. Run tests and type checks:
    ```bash
    pnpm type-check
    pnpm test:unit
@@ -58,6 +68,40 @@ Thank you for your interest in contributing to Aura-Sign MVP! This document prov
 - Ensure all tests pass with `pnpm test:unit`
 - Maintain or improve code coverage
 - Tests should be in `*.test.ts` files alongside source code
+
+### Security
+
+**Never commit secrets or credentials:**
+
+- ❌ **DON'T** commit API keys, passwords, tokens, or certificates
+- ❌ **DON'T** commit `.env` or `.env.local` files
+- ✅ **DO** use environment variables for sensitive data
+- ✅ **DO** use placeholder values in `.env.example`
+- ✅ **DO** generate strong secrets with `openssl rand -base64 32`
+
+**Secret detection:**
+
+The repository has multiple layers of secret detection:
+
+1. **Pre-commit hooks** (local, optional but recommended)
+   - Install with `./scripts/setup_pre_commit_hooks.sh`
+   - Blocks commits containing secrets
+   - Requires [gitleaks](https://github.com/gitleaks/gitleaks)
+
+2. **CI/CD scanning** (automated, required)
+   - Runs on every push and PR
+   - Scans full git history
+   - Blocks merge if secrets detected
+   - Cannot be bypassed
+
+**If you accidentally commit a secret:**
+
+1. **DO NOT** just delete it in a new commit (it remains in git history)
+2. **DO** follow the remediation guide in `docs/SECURITY_SECRETS.md`
+3. **DO** rotate/invalidate the compromised secret immediately
+4. **DO** notify your team if history rewrite is needed
+
+See `docs/SECURITY_SECRETS.md` for comprehensive guidance.
 
 ## Git Workflow
 

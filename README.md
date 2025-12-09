@@ -50,9 +50,12 @@ Aura-Sign MVP provides wallet-based authentication (SIWE) and modular building b
 git clone https://github.com/Kamil1230xd/aura-sign-mvp.git
 cd aura-sign-mvp
 ./scripts/bootstrap_local_dev.sh
+
+# Optional but recommended: Set up pre-commit secret detection
+./scripts/setup_pre_commit_hooks.sh
 ```
 
-The bootstrap script handles dependencies, environment setup, database initialization, and more.
+The bootstrap script handles dependencies, environment setup, database initialization, and auto-generates secure credentials. See [Quick Start Security Guide](docs/QUICK_START_SECURITY.md) for more information.
 
 ### Option 2: Manual Setup
 
@@ -60,9 +63,10 @@ The bootstrap script handles dependencies, environment setup, database initializ
 # 1) Install dependencies
 pnpm install
 
-# 2) Create .env from template
-cp .env.example .env
-# edit .env to add values (see .env.example for required keys)
+# 2) Create .env.local from template (never commit this file!)
+cp .env.example .env.local
+# edit .env.local and replace ALL placeholder values
+# Generate secrets with: openssl rand -base64 32
 
 # 3) Start development (monorepo)
 pnpm dev
@@ -75,30 +79,29 @@ pnpm demo
 
 ## Environment variables (.env.example)
 
-A `.env.example` template should exist in repo root with at least:
+A `.env.example` template exists in the repo root. **Never commit real secrets** — copy to `.env.local` (gitignored) and fill in actual values:
 
 ```bash
-# Postgres / DB (if used)
-DATABASE_URL=postgresql://user:pass@localhost:5432/aura
+# Copy template and edit with your values
+cp .env.example .env.local
 
-# SIWE / auth
-NEXT_PUBLIC_APP_NAME=Aura-Sign-Demo
-SESSION_SECRET=replace_me_with_secure_random
-IRON_SESSION_PASSWORD=long_random_password_here
-
-# Storage
-MINIO_ENDPOINT=http://localhost:9000
-MINIO_ACCESS_KEY=minio
-MINIO_SECRET_KEY=minio123
-
-# Worker / queue
-REDIS_URL=redis://localhost:6379
-
-# Optional (embeddings)
-EMBEDDING_API=http://localhost:4001
+# Generate secure random secrets using:
+openssl rand -base64 32
 ```
 
-> **Security note:** Do not commit your `.env` — use `.env.example` only.
+See `.env.example` for all available configuration options. Key variables include:
+
+- `DATABASE_URL` - PostgreSQL connection string
+- `SESSION_SECRET` - Server-side session secret (min 32 chars)
+- `IRON_SESSION_PASSWORD` - Encrypted cookie password (min 32 chars)
+- `POSTGRES_USER`, `POSTGRES_PASSWORD` - Database credentials for Docker Compose
+- `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD` - Object storage credentials
+
+> **Security note:** 
+> - Never commit `.env` or `.env.local` files (they are gitignored)
+> - Use placeholders in `.env.example` only
+> - Generate strong random secrets for production use
+> - The bootstrap script (`./scripts/bootstrap_local_dev.sh`) auto-generates secure credentials
 
 ---
 
@@ -173,11 +176,25 @@ Pull requests **cannot be merged** until:
 
 ### Security Scanning
 
-- **Secret scanning:** Gitleaks checks every commit
+- **Secret scanning:** Gitleaks checks every commit (blocks merge if secrets found)
+- **Pre-commit hooks:** Optional local secret detection (see setup below)
 - **Dependency audit:** pnpm audit runs on each CI build
 - **Vulnerability alerts:** GitHub security advisories enabled
 
-See `.github/dependabot.yml` and `.github/workflows/ci.yml` for configuration details.
+**Setup pre-commit secret detection (recommended):**
+```bash
+# Install gitleaks
+brew install gitleaks  # macOS (see docs for other platforms)
+
+# Setup hook
+./scripts/setup_pre_commit_hooks.sh
+```
+
+📚 **Security documentation:**
+- [Quick Start Security Guide](docs/QUICK_START_SECURITY.md) - Essential security practices
+- [Comprehensive Security Guide](docs/SECURITY_SECRETS.md) - Secret detection and remediation
+
+See `.github/dependabot.yml` and `.github/workflows/ci.yml` for CI configuration.
 
 ---
 
