@@ -24,7 +24,7 @@ if ! command -v gitleaks >/dev/null 2>&1; then
     echo "  - Linux: Download from https://github.com/gitleaks/gitleaks/releases"
     echo "  - Or use Docker: docker pull zricethezav/gitleaks:latest"
     echo ""
-    read -r -p "Continue without gitleaks? (the hook will fail until you install it) [y/N]: " user_continue
+    read -r -p "Continue without gitleaks? (commits will be allowed with a warning) [y/N]: " user_continue
     user_continue=${user_continue:-N}
     if [[ ! "$user_continue" =~ ^(Y|y)$ ]]; then
         echo "Aborting."
@@ -108,8 +108,8 @@ echo ""
 # Test if gitleaks is available
 if command -v gitleaks >/dev/null 2>&1; then
     echo "Running gitleaks test scan..."
-    # Capture output and exit code separately
-    GITLEAKS_OUTPUT=$(gitleaks detect --config="$REPO_ROOT/.gitleaks.toml" --verbose 2>&1)
+    # Capture output and exit code separately, redact any secrets found
+    GITLEAKS_OUTPUT=$(gitleaks detect --config="$REPO_ROOT/.gitleaks.toml" --redact --verbose 2>&1)
     GITLEAKS_EXIT=$?
     echo "$GITLEAKS_OUTPUT" | head -20
     echo ""

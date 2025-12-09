@@ -73,8 +73,9 @@ if [ -f docker-compose.yml ]; then
     PG_USER="postgres"
     if [ -f "$ENV_FILE" ]; then
       # Safely extract POSTGRES_USER using grep and cut, avoiding source
-      PG_USER_FROM_FILE=$(grep "^POSTGRES_USER=" "$ENV_FILE" | cut -d'=' -f2- | tr -d '"' | head -1)
-      if [ -n "$PG_USER_FROM_FILE" ]; then
+      PG_USER_FROM_FILE=$(grep "^POSTGRES_USER=" "$ENV_FILE" | cut -d'=' -f2 | tr -d '"' | head -1)
+      # Validate extracted value is a simple alphanumeric username
+      if [[ "$PG_USER_FROM_FILE" =~ ^[a-zA-Z0-9_-]+$ ]]; then
         PG_USER="$PG_USER_FROM_FILE"
       fi
     fi
