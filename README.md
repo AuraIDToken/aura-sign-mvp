@@ -1,5 +1,66 @@
-# Aura-Sign MVP
+# Aura-Sign MVP 
+# Project Name — EXPERIMENTAL v1
 
+> Status: EXPERIMENTAL  
+> Time-boxed research repository  
+> Not production-ready
+
+## Purpose (Why this repo exists)
+This repository exists to test specific technical and conceptual assumptions.
+It is not intended to become a production product.
+
+## Hypotheses
+We are explicitly testing the following assumptions:
+1. …
+2. …
+3. …
+
+## Non-goals
+This repository intentionally does NOT aim to:
+- Solve X
+- Be production-ready
+- Provide long-term support
+- Optimize performance beyond baseline
+
+## Scope
+In scope:
+- Minimal implementation to validate assumptions
+- Clear failure signals
+- Documentation of decisions
+
+Out of scope:
+- UX polish
+- Scalability
+- Enterprise-grade security hardening
+
+## Success criteria
+This experiment is considered successful if:
+- Condition A is met
+OR
+- Hypothesis B is disproven with evidence
+
+## Failure criteria
+This experiment is considered failed if:
+- X cannot be achieved within the time-box
+- Key assumption proves false
+
+## Time-box
+Start date: YYYY-MM-DD  
+Planned evaluation: YYYY-MM-DD
+
+## What to look at
+- `/docs/decisions.md` — why choices were made
+- `/docs/lessons.md` — updated during the experiment
+
+## What this repo is NOT
+- Not a product
+- Not a final architecture
+- Not a best-practice reference
+
+## Next steps after evaluation
+- Archive repository
+- Fork into new experimental repo
+- Rewrite from scratch using lessons learned
 **A complete Sign-In with Ethereum (SIWE) authentication solution** built as a modern monorepo.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
